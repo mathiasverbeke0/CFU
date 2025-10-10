@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFU/mL Calculator</title>
+    <style>
+        /* CSS Reset and Core Styles */
+        :root {
+            --font-serif: Georgia, 'Times New Roman', Times, serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --background: #FDFDFD;
+            --foreground: #FFFFFF;
+            --text-primary: #121212;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+            --focus-ring: #3B82F6;
+        }
+
+        *, *:before, *:after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--background);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Main Container */
+        .toolkit-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--foreground);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.07);
+        }
+
+        header {
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 400;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        /* Calculator Content Area */
+        .calculator-content {
+            padding: 2.5rem;
+        }
+
+        .form-group { margin-bottom: 2rem; }
+
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Input Styling - Minimalist Underline */
+        input[type="number"] {
+            width: 100%;
+            padding: 0.5rem 0;
+            border: none;
+            border-bottom: 1.5px solid var(--border-color);
+            border-radius: 0;
+            font-family: var(--font-sans);
+            font-size: 1.1rem;
+            background-color: transparent;
+            text-align: center;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-bottom-color: var(--focus-ring);
+        }
+
+        /* Dilution Input Styling */
+        .fraction-inputs {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .fraction-line {
+            width: 100%;
+            height: 1.5px;
+            background-color: var(--border-color);
+        }
+
+        .power-inputs {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            width: 100%;
+        }
+        
+        .power-inputs .power-symbol {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        /* Button Styling */
+        button {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--text-primary);
+            color: var(--foreground);
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #333;
+        }
+
+        /* Results Section */
+        .results {
+            margin: 0;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s ease-in-out, margin-top 0.6s ease-in-out;
+        }
+
+        .results.visible {
+            margin-top: 3rem;
+            max-height: 500px;
+        }
+
+        .results h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-item span {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .result-item strong {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="toolkit-container">
+        <header><h1>CFU/mL Calculator</h1></header>
+
+        <div class="calculator-content">
+            <div id="cfu-calculator">
+                <div class="form-group">
+                    <label for="cfu-count">CFU on Plate</label>
+                    <input type="number" id="cfu-count" placeholder="e.g., 150">
+                </div>
+                <div class="form-group">
+                    <label>Dilution Plated</label>
+                    <div class="fraction-inputs">
+                        <input type="number" id="dilution-numerator" placeholder="Numerator" value="1">
+                        <span class="fraction-line"></span>
+                        <div class="power-inputs">
+                            <input type="number" id="dilution-base" placeholder="Base" value="10">
+                            <span class="power-symbol">^</span>
+                            <input type="number" id="dilution-exponent" placeholder="Exponent">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="volume-plated">Volume Plated (mL)</label>
+                    <input type="number" id="volume-plated" placeholder="e.g., 0.1">
+                </div>
+                <button id="calculate-cfu-btn">Calculate CFU/mL</button>
+                <div class="results" id="cfu-results">
+                    <h2>Original Concentration</h2>
+                    <div class="result-item">
+                        <span>Calculated CFU/mL</span>
+                        <strong><em id="final-cfu-ml">--</em></strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calculate-cfu-btn').addEventListener('click', function() {
+            const cfuCount = parseFloat(document.getElementById('cfu-count').value);
+            const volumePlated = parseFloat(document.getElementById('volume-plated').value);
+            const dilutionNumerator = parseFloat(document.getElementById('dilution-numerator').value);
+            const dilutionBase = parseFloat(document.getElementById('dilution-base').value);
+            const dilutionExponent = parseFloat(document.getElementById('dilution-exponent').value);
+
+            if (isNaN(cfuCount) || isNaN(volumePlated) || isNaN(dilutionNumerator) || isNaN(dilutionBase) || isNaN(dilutionExponent)) {
+                alert("Please enter valid numbers in all fields.");
+                return;
+            }
+
+            if (volumePlated <= 0 || dilutionNumerator <= 0 || dilutionBase <= 0) {
+                alert("Volume, dilution numerator, and dilution base must be positive numbers.");
+                return;
+            }
+            
+            if (cfuCount < 0) {
+                 alert("CFU count cannot be negative.");
+                return;
+            }
+
+            // Calculate the dilution factor, which is the reciprocal of the dilution fraction.
+            // Dilution = Numerator / (Base^Exponent)
+            // Dilution Factor = (Base^Exponent) / Numerator
+            const denominator = Math.pow(dilutionBase, dilutionExponent);
+            const dilutionFactor = denominator / dilutionNumerator;
+
+            // Formula: CFU/mL = (Number of Colonies * Dilution Factor) / Volume Plated
+            const cfuPerMl = (cfuCount * dilutionFactor) / volumePlated;
+
+            document.getElementById('final-cfu-ml').textContent = cfuPerMl.toExponential(2);
+            document.getElementById('cfu-results').classList.add('visible');
+        });
+    </script>
+</body>
+</html>
